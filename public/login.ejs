@@ -1,0 +1,12 @@
+  // let's see if NGINX provided a return address. It's in the format of: 
+  // %2Ftransmission%2Fweb%2F&rd=https://mam-transmission.xod.se%2Ftransmission%2Fweb%2F
+  // URIDecoded: /some/path/&rd=https://my.domain.example.com/some/path/
+  const args = {};
+  window.location.search.slice(1).split(`&`).map(it => decodeURIComponent(it).split(`=`)).filter(it => it.length === 2).forEach(it => args[it[0]] = it[1]);
+
+  if (args.rd) {
+    // we have a return address, so let's go there
+    window.location.href = args.rd
+  } else {
+    window.location.href = '/logged-in';
+  }

@@ -1,0 +1,41 @@
+
+.header {
+  background-color: #777;
+  color: #efefef;
+  font-weight: bold;
+}
+
+.user {
+  display: flex;
+  flex-direction: row;
+  padding: 4px;
+}
+
+.user > * {
+  margin: 4px;
+}
+
+.user .userId {
+  width: 150px;
+}
+
+.user .password {
+  width: 150px;
+}
+
+.user .isAdmin {
+  width: 50px;
+}
+
+.user .deleteUser {
+  width: 50px;
+}
+
+.user .saveUser {
+  width: 60px;
+}
+
+form {
+  margin: 0px;
+  padding: 0px;
+}
