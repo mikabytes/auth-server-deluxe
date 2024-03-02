@@ -1,15 +1,33 @@
-import express from "express"
 import cookieParser from "cookie-parser"
+import express from "express"
 import morgan from "morgan"
 import nocache from "nocache"
-import apiLimiter from "./apiLimiter.js"
-import config from "./config.js"
+
+import { getUser } from "./db.js"
 import { verify } from "./jwt.js"
-import * as cookie from "./cookie.js"
-import * as user from "./endpoints/user.js"
+import apiLimiter from "./apiLimiter.js"
 import * as auth from "./endpoints/auth.js"
+import config from "./config.js"
 import login from "./endpoints/login.js"
 import logout from "./endpoints/logout.js"
+import * as user from "./endpoints/user.js"
+import * as resource from "./endpoints/resource.js"
+
+async function requireAdmin(req, res, next) {
+  if (!req.userId) {
+    res.status(401).end()
+    return
+  }
+
+  const user = await getUser(req.userId) // Assuming getUser returns a promise
+
+  if (!user.isAdmin) {
+    res.status(401).end()
+    return
+  }
+
+  next() // Call next() to continue to the next middleware or route handler
+}
 
 const app = express()
 
@@ -27,8 +45,16 @@ app.delete(`/api/user/:userId`, user.remove)
 app.put(`/api/user/:userId`, user.update)
 app.get(`/api/users`, user.getAll)
 app.post(`/api/users`, user.create)
+app.post(`/api/users`, user.create)
+
 app.post(`/api/login`, apiLimiter, login)
 app.post(`/api/logout`, logout)
+
+app.get(`/api/resources`, resource.getAll)
+app.get(`/api/resource/:resourceId`, resource.get)
+app.post(`/api/resources`, resource.create)
+app.delete(`/api/resource/:resourceId`, resource.remove)
+app.put(`/api/resource/:resourceId`, resource.update)
 
 // default 404
 app.use((req, res, next) => {

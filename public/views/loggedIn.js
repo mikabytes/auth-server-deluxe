@@ -17,6 +17,12 @@ export default async function loggedIn(me) {
     document.location.reload()
   })
 
+  let resources
+
+  if (me.isAdmin) {
+    resources = await fetch(`/api/resources`).then((res) => res.json())
+  }
+
   await addUsers(me)
 
   if (!me.isAdmin) {
@@ -34,6 +40,7 @@ export default async function loggedIn(me) {
           <div class="userId">ID</div>
           <div class="password">Password</div>
           <div class="isAdmin">Admin</div>
+          ${resources ? resources.map((it) => `<div class="resource-item">${it.id}</div>`).join(``) : ``}
         </div>
       `,
       })
@@ -95,6 +102,7 @@ export default async function loggedIn(me) {
       <div class="userId">${user.id}</div>
       <input type="text" class="password"></input>
       <input ${me.isAdmin ? `` : `disabled`} type="checkbox" class="isAdmin" ${user.isAdmin ? `checked` : ``}>
+      ${resources ? resources.map((it) => `<input type="checkbox" class="resource-item" name="${it.id}" ${user.resources.includes(it.id) ? `checked` : ``}></input>`).join(``) : ``}
       <button class="saveUser">Save</button>
       <button ${me.isAdmin ? `` : `disabled`} class="deleteUser">Delete</button>
     `,
@@ -122,6 +130,17 @@ export default async function loggedIn(me) {
         body.isAdmin = el.querySelector(`.isAdmin`).checked
       }
 
+      if (resources) {
+        body.resources = []
+        for (const resource of resources) {
+          if (
+            el.querySelector(`.resource-item[name="${resource.id}"]`).checked
+          ) {
+            body.resources.push(resource.id)
+          }
+        }
+      }
+
       const res = await fetch(`/api/user/${encodeURIComponent(user.id)}`, {
         method: `PUT`,
         headers: {
@@ -143,9 +162,102 @@ export default async function loggedIn(me) {
       Object.assign(document.createElement(`section`), {
         innerHTML: `
         <h2>Resources</h2>
-        <ul id="resources"></ul>
+        <div class="resource header">
+          <div class="id">ID</div>
+          <div class="regex">Regex</div>
+        </div>
       `,
       })
     )
+
+    resources.forEach((r) => createResourceRow(el, r))
+
+    el.appendChild(
+      Object.assign(document.createElement(`h3`), { innerHTML: `Add Resource` })
+    )
+
+    const createEl = el.appendChild(
+      Object.assign(document.createElement(`form`), {
+        id: `addResource`,
+        className: `resource`,
+        innerHTML: `
+          <input class="id" name="id" placeholder="id">
+          <input type="text" class="regex" placeholder="regex"></input>
+          <button type="submit">Add</button>
+        `,
+      })
+    )
+
+    createEl.addEventListener(`submit`, async (event) => {
+      event.preventDefault()
+      const id = createEl.querySelector(`.id`).value
+      const regex = createEl.querySelector(`.regex`).value
+      const res = await fetch(`/api/resources`, {
+        method: `POST`,
+        headers: {
+          "Content-Type": `application/json`,
+        },
+        body: JSON.stringify({ id, regex }),
+      })
+
+      if (!res.ok) {
+        alert(res.status + `: ` + (await res.text()))
+        return
+      }
+
+      document.location.reload()
+    })
+  }
+
+  function createResourceRow(parent, resource) {
+    const el = parent.appendChild(
+      Object.assign(document.createElement(`div`), {
+        className: `resource`,
+        innerHTML: `
+      <div class="id">${resource.id}</div>
+      <input type="text" class="regex" value="${resource.regex}"></input>
+      <button class="saveResource">Save</button>
+      <button class="deleteResource">Delete</button>
+    `,
+      })
+    )
+
+    el.querySelector(`.deleteResource`).addEventListener(`click`, async () => {
+      const res = await fetch(
+        `/api/resource/${encodeURIComponent(resource.id)}`,
+        {
+          method: `DELETE`,
+        }
+      )
+
+      if (!res.ok) {
+        alert(res.status + `: ` + (await res.text()))
+        return
+      }
+      document.location.reload()
+    })
+
+    el.querySelector(`.saveResource`).addEventListener(`click`, async () => {
+      const body = {
+        regex: el.querySelector(`.regex`).value,
+      }
+
+      const res = await fetch(
+        `/api/resource/${encodeURIComponent(resource.id)}`,
+        {
+          method: `PUT`,
+          headers: {
+            "Content-Type": `application/json`,
+          },
+          body: JSON.stringify(body),
+        }
+      )
+
+      if (!res.ok) {
+        alert(res.status + `: ` + (await res.text()))
+        return
+      }
+      document.location.reload()
+    })
   }
 }
