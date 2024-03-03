@@ -1,6 +1,6 @@
 import { sign } from "../jwt.js"
 import { refresh } from "../cookie.js"
-import { checkAuth } from "../db.js"
+import { checkAuth } from "../db/user.js"
 
 export default async (req, res) => {
   const { userId, password } = req.body

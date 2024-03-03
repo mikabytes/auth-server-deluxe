@@ -3,7 +3,6 @@ import express from "express"
 import morgan from "morgan"
 import nocache from "nocache"
 
-import { getUser } from "./db.js"
 import { verify } from "./jwt.js"
 import apiLimiter from "./apiLimiter.js"
 import * as auth from "./endpoints/auth.js"
@@ -12,22 +11,6 @@ import login from "./endpoints/login.js"
 import logout from "./endpoints/logout.js"
 import * as user from "./endpoints/user.js"
 import * as resource from "./endpoints/resource.js"
-
-async function requireAdmin(req, res, next) {
-  if (!req.userId) {
-    res.status(401).end()
-    return
-  }
-
-  const user = await getUser(req.userId) // Assuming getUser returns a promise
-
-  if (!user.isAdmin) {
-    res.status(401).end()
-    return
-  }
-
-  next() // Call next() to continue to the next middleware or route handler
-}
 
 const app = express()
 

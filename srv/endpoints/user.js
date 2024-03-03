@@ -1,14 +1,8 @@
-import {
-  createUser,
-  deleteUser,
-  getAllUsers,
-  getUser,
-  updateUser,
-} from "../db.js"
+import * as User from "../db/user.js"
 
 export const get = async (req, res) => {
   if (req.userId) {
-    const user = await getUser(req.userId)
+    const user = await User.get(req.userId)
     res.send(user)
   } else {
     res.status(401)
@@ -22,14 +16,14 @@ export const getAll = async (req, res) => {
     res.end()
   }
 
-  const user = await getUser(req.userId)
+  const user = await User.get(req.userId)
 
   if (!user.isAdmin) {
     res.status(401)
     res.end()
   }
 
-  res.send(await getAllUsers())
+  res.send(await User.all())
 }
 
 export const create = async (req, res) => {
@@ -38,14 +32,14 @@ export const create = async (req, res) => {
     res.end()
   }
 
-  const user = await getUser(req.userId)
+  const user = await User.get(req.userId)
 
   if (!user.isAdmin) {
     res.status(401)
     res.end()
   }
 
-  await createUser(req.body)
+  await User.create(req.body)
   res.json({ status: `ok` })
 }
 
@@ -55,14 +49,14 @@ export const remove = async (req, res) => {
     res.end()
   }
 
-  const user = await getUser(req.userId)
+  const user = await User.get(req.userId)
 
   if (!user.isAdmin) {
     res.status(401)
     res.end()
   }
 
-  await deleteUser(req.params.userId)
+  await User.remove(req.params.userId)
   res.json({ status: `ok` })
 }
 
@@ -72,7 +66,7 @@ export const update = async (req, res) => {
     res.end()
   }
 
-  const user = await getUser(req.userId)
+  const user = await User.get(req.userId)
 
   const onlyChangingMyOwnPassword =
     user.id === req.params.userId &&
@@ -85,6 +79,6 @@ export const update = async (req, res) => {
     return
   }
 
-  await updateUser(req.params.userId, req.body)
+  await User.update(req.params.userId, req.body)
   res.json({ status: `ok` })
 }

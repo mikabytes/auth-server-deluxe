@@ -1,4 +1,5 @@
-import db, { getUser } from "../db.js"
+import { get as getUser } from "../db/user.js"
+import * as Resource from "../db/resource.js"
 
 function format(resource) {
   return {
@@ -28,7 +29,12 @@ export async function getAll(req, res) {
     return
   }
 
-  res.json((await db.all(`SELECT id, regex FROM resources`)).map(format))
+  try {
+    res.json(await Resource.all())
+  } catch (e) {
+    res.status(500)
+    res.json({ error: e.message })
+  }
 }
 
 export async function get(req, res) {
@@ -36,14 +42,12 @@ export async function get(req, res) {
     return
   }
 
-  res.json(
-    format(
-      await db.get(
-        `SELECT id, regex FROM resources WHERE id = ?`,
-        req.params.id
-      )
-    )
-  )
+  try {
+    res.json(await Resource.get(req.params.id))
+  } catch (e) {
+    res.status(500)
+    res.json({ error: e.message })
+  }
 }
 
 export async function create(req, res) {
@@ -51,12 +55,13 @@ export async function create(req, res) {
     return
   }
 
-  await db.run(
-    `INSERT INTO resources (id, regex) VALUES (?, ?)`,
-    req.body.id,
-    req.body.regex
-  )
-  res.json({ status: `ok` })
+  try {
+    await Resource.create(req.body)
+    res.json({ status: `ok` })
+  } catch (e) {
+    res.status(500)
+    res.json({ error: e.message })
+  }
 }
 
 export async function update(req, res) {
@@ -64,12 +69,13 @@ export async function update(req, res) {
     return
   }
 
-  await db.run(
-    `UPDATE resources SET regex = ? WHERE id = ?`,
-    req.body.regex,
-    req.params.resourceId
-  )
-  res.json({ status: `ok` })
+  try {
+    await Resource.update(req.params.resourceId, req.body)
+    res.json({ status: `ok` })
+  } catch (e) {
+    res.status(500)
+    res.json({ error: e.message })
+  }
 }
 
 export async function remove(req, res) {
@@ -77,6 +83,11 @@ export async function remove(req, res) {
     return
   }
 
-  await db.run(`DELETE FROM resources WHERE id = ?`, req.params.resourceId)
-  res.json({ status: `ok` })
+  try {
+    await Resource.remove(req.params.resourceId)
+    res.json({ status: `ok` })
+  } catch (e) {
+    res.status(500)
+    res.json({ error: e.message })
+  }
 }
