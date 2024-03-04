@@ -1,6 +1,5 @@
 import cookieParser from "cookie-parser"
 import express from "express"
-import morgan from "morgan"
 import nocache from "nocache"
 
 import { verify } from "./jwt.js"
@@ -12,14 +11,16 @@ import logout from "./endpoints/logout.js"
 import * as user from "./endpoints/user.js"
 import * as resource from "./endpoints/resource.js"
 
+import chalk from "chalk"
+
 const app = express()
 
-app.use(morgan(`dev`))
 app.use(express.static(`public`))
 app.use(cookieParser())
 app.use(express.json())
 app.use(nocache())
 app.use(verify)
+app.use(logger)
 
 app.get(`/auth`, auth.get)
 
@@ -47,3 +48,15 @@ app.use((req, res, next) => {
 app.listen(config.port, () =>
   console.log(`Listening at http://localhost:${config.port}`)
 )
+
+function logger(req, res, next) {
+  const url = req.headers["x-original-url"]
+  const ip = req.headers["x-real-ip"]
+
+  const time = performance.now()
+  next()
+
+  console.log(
+    `${new Date().toISOString()} ${chalk[req.statusCode < 400 ? `green` : `red`](res.statusCode)} ${req.userId ? req.userId : `FAILED`} ${ip} ${url} ${("" + (performance.now() - time)).slice(0, 4)}ms`
+  )
+}

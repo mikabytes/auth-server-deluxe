@@ -1,7 +1,7 @@
 import { AsyncDatabase } from "promised-sqlite3"
 import digest from "./digest.js"
 
-const db = await AsyncDatabase.open(`db.sqlite`)
+const db = await AsyncDatabase.open(process.env.DB_PATH || `db.sqlite`)
 
 export async function migrate() {
   let { user_version: version } = await db.get(`PRAGMA user_version;`)

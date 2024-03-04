@@ -14,10 +14,13 @@ export async function get(userId) {
   user.isAdmin = !!user.isAdmin
 
   const userResources = await db.all(
-    `SELECT resourceId FROM userResource WHERE userId = ?`,
+    `SELECT resourceId, regex FROM userResource INNER JOIN resources ON resourceId = resources.id WHERE userId = ?`,
     userId
   )
-  user.resources = userResources.map((r) => r.resourceId)
+  user.resources = userResources.map((r) => ({
+    id: r.resourceId,
+    regex: new RegExp(r.regex),
+  }))
   return user
 }
 

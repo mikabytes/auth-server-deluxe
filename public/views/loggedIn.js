@@ -66,7 +66,7 @@ export default async function loggedIn(me) {
         className: `user`,
         innerHTML: `
         <input class="userId" name="userId" placeholder="userId">
-        <input type="text" class="password" placeholder="password"></input>
+        <input type="text" class="password"></input>
         <input class="isAdmin" name="isAdmin" type="checkbox">
         <button type="submit">Add</button>`,
       })

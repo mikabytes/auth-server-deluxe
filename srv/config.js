@@ -31,4 +31,6 @@ try {
   process.exit(1)
 }
 
+console.log(config)
+
 export default config
