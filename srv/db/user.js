@@ -1,12 +1,22 @@
 import db from "../db.js"
 import digest from "../digest.js"
 
+export async function invalidateCache() {
+  cache = {}
+}
+
+let cache = {}
+
 export async function checkAuth(userId, password) {
   const user = await db.get(`SELECT password FROM users WHERE id = ?`, userId)
   return user.password === (await digest(password))
 }
 
 export async function get(userId) {
+  if (cache[userId]) {
+    return cache[userId]
+  }
+
   const user = await db.get(
     `SELECT id, isAdmin FROM users WHERE id = ?`,
     userId
@@ -19,8 +29,11 @@ export async function get(userId) {
   )
   user.resources = userResources.map((r) => ({
     id: r.resourceId,
-    regex: new RegExp(r.regex),
+    regex: new RegExp(`^${r.regex}$`, `i`),
   }))
+
+  cache[userId] = user
+
   return user
 }
 
@@ -40,15 +53,17 @@ export async function create(user) {
     await digest(user.password),
     user.isAdmin,
   ])
+
+  invalidateCache()
 }
 
 export async function remove(userId) {
   await db.run(`DELETE FROM users WHERE id = ?`, userId)
+  invalidateCache()
 }
 
 export async function update(userId, body) {
   if (body.password) {
-    console.log(`setting password for ${userId} to ${body.password}`)
     body.password = await digest(body.password)
     await db.run(`UPDATE users SET password = ? WHERE id = ?`, [
       body.password,
@@ -72,4 +87,5 @@ export async function update(userId, body) {
       )
     }
   }
+  invalidateCache()
 }

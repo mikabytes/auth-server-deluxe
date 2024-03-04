@@ -16,7 +16,6 @@ export const get = async (req, res, next) => {
   }
 
   const user = await getUser(req.userId)
-  console.log(user)
 
   if (!user.resources.find((it) => it.regex.test(url))) {
     return res.sendStatus(401)

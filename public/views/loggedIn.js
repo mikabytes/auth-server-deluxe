@@ -102,7 +102,7 @@ export default async function loggedIn(me) {
       <div class="userId">${user.id}</div>
       <input type="text" class="password"></input>
       <input ${me.isAdmin ? `` : `disabled`} type="checkbox" class="isAdmin" ${user.isAdmin ? `checked` : ``}>
-      ${resources ? resources.map((it) => `<input type="checkbox" class="resource-item" name="${it.id}" ${user.resources.includes(it.id) ? `checked` : ``}></input>`).join(``) : ``}
+      ${resources ? resources.map((it) => `<input type="checkbox" class="resource-item" name="${it.id}" ${user.resources.find((ur) => ur.id === it.id) ? `checked` : ``}></input>`).join(``) : ``}
       <button class="saveUser">Save</button>
       <button ${me.isAdmin ? `` : `disabled`} class="deleteUser">Delete</button>
     `,

@@ -15,12 +15,13 @@ import chalk from "chalk"
 
 const app = express()
 
+app.use(logger)
+
 app.use(express.static(`public`))
 app.use(cookieParser())
 app.use(express.json())
 app.use(nocache())
 app.use(verify)
-app.use(logger)
 
 app.get(`/auth`, auth.get)
 
@@ -43,6 +44,7 @@ app.put(`/api/resource/:resourceId`, resource.update)
 // default 404
 app.use((req, res, next) => {
   res.status(404).send(`No such page`)
+  next()
 })
 
 app.listen(config.port, () =>
@@ -50,13 +52,16 @@ app.listen(config.port, () =>
 )
 
 function logger(req, res, next) {
-  const url = req.headers["x-original-url"]
-  const ip = req.headers["x-real-ip"]
+  const url = req.headers["x-original-url"] || req.originalUrl
+  const ip = req.headers["x-real-ip"] || req.ip
 
-  const time = performance.now()
+  const startTime = performance.now()
+
+  res.on("finish", () => {
+    console.log(
+      `${new Date().toISOString()} ${chalk[req.statusCode < 400 ? `green` : `red`](res.statusCode)} ${req.userId ? req.userId : `FAILED`} ${ip} ${url} ${("" + (performance.now() - startTime)).slice(0, 4)}ms`
+    )
+  })
+
   next()
-
-  console.log(
-    `${new Date().toISOString()} ${chalk[req.statusCode < 400 ? `green` : `red`](res.statusCode)} ${req.userId ? req.userId : `FAILED`} ${ip} ${url} ${("" + (performance.now() - time)).slice(0, 4)}ms`
-  )
 }
