@@ -20,6 +20,7 @@ export async function migrate() {
     `INSERT INTO users (id, password, isAdmin) VALUES ('admin', '${await digest("admin")}', true);`,
     `CREATE TABLE resources (id TEXT PRIMARY KEY, regex TEXT);`,
     `CREATE TABLE userResource (userId TEXT, resourceId TEXT, UNIQUE(userId, resourceId));`,
+    `ALTER TABLE resources ADD COLUMN url TEXT;`,
   ]
 
   for (

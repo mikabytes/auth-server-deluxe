@@ -1,13 +1,6 @@
 import { get as getUser } from "../db/user.js"
 import * as Resource from "../db/resource.js"
 
-function format(resource) {
-  return {
-    id: resource.id,
-    regex: resource.regex,
-  }
-}
-
 async function admin(req, res) {
   if (!req.userId) {
     res.status(401).end()
