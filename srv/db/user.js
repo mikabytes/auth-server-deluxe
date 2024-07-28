@@ -9,7 +9,7 @@ let cache = {}
 
 export async function checkAuth(userId, password) {
   const user = await db.get(`SELECT password FROM users WHERE id = ?`, userId)
-  return user.password === (await digest(password))
+  return user?.password === (await digest(password))
 }
 
 export async function get(userId) {
