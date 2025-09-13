@@ -14,7 +14,7 @@ export const refresh = ({ req, res, token }) => {
 }
 
 export function getBaseDomain(req) {
-  const host = req.headers["x-forwarded-host"] || req.headers.host
+  let host = req.headers["x-forwarded-host"] || req.headers.host
   if (!host) return null
   host = host.split(",")[0].trim().replace(/:\d+$/, "")
   const parsed = psl.parse(host)
