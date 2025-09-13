@@ -22,7 +22,7 @@ export const get = async (req, res, next) => {
   }
 
   const token = sign({ userId: req.userId })
-  refresh({ res, token })
+  refresh({ req, res, token })
 
   return res.sendStatus(200)
 }

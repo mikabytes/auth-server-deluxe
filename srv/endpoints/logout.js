@@ -1,7 +1,9 @@
 import config from "../config.js"
+import { getBaseDomain } from "../cookie.js"
 
 export default (req, res) => {
   const options = {}
+  config.domain = getBaseDomain(req)
   if (config.cookieOverrides?.path) {
     config.options.path = config.cookieOverrides.path
   }

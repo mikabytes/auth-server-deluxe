@@ -2,9 +2,7 @@ import config from "./config.js"
 import psl from "psl"
 
 export const refresh = ({ req, res, token }) => {
-  const domain = getBaseDomain(
-    req.headers["x-forwarded-host"] || req.headers.host
-  )
+  const domain = getBaseDomain(req)
 
   res.cookie("authToken", token, {
     maxAge: 1000 * 86400 * config.expiryDays, // milliseconds
@@ -15,7 +13,8 @@ export const refresh = ({ req, res, token }) => {
   })
 }
 
-function getBaseDomain(host) {
+export function getBaseDomain(req) {
+  const host = req.headers["x-forwarded-host"] || req.headers.host
   if (!host) return null
   host = host.split(",")[0].trim().replace(/:\d+$/, "")
   const parsed = psl.parse(host)
