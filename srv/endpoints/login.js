@@ -8,7 +8,7 @@ export default async (req, res) => {
   if (await checkAuth(userId, password)) {
     const token = sign({ userId })
 
-    refresh({ res, token })
+    refresh({ req, res, token })
     return res.json({ status: "ok" })
   }
 
