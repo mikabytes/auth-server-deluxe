@@ -6,14 +6,15 @@
     "express-rate-limit": "^5.5.0",
     "jsonwebtoken": "^9.0.2",
     "nocache": "^4.0.0",
-    "promised-sqlite3": "^2.1.0"
+    "promised-sqlite3": "^2.1.0",
+    "psl": "^1.15.0"
   },
   "scripts": {
     "watch": "bash watch.sh node srv/index.js",
     "start": "node srv/index.js"
   },
   "name": "auth-server-deluxe",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "app.js",
   "repository": "git@github.com:mikabytes/auth-server-deluxe.git",
   "author": "mikabytes",
