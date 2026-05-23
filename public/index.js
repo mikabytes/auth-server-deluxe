@@ -1,5 +1,4 @@
 import mainView from "./views/main.js"
-import loggedInView from "./views/loggedIn.js"
 
 const res = await fetch(`/api/user`)
 let user
@@ -12,5 +11,6 @@ if (res.ok) {
 if (!user) {
   mainView(user)
 } else {
+  const { default: loggedInView } = await import("./views/loggedIn.js")
   loggedInView(user)
 }
