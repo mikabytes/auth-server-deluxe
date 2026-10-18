@@ -3,6 +3,7 @@ import express from "express"
 import nocache from "nocache"
 
 import { verify } from "./jwt.js"
+import { getOriginalUrl } from "./original-url.js"
 import apiLimiter from "./apiLimiter.js"
 import * as auth from "./endpoints/auth.js"
 import config from "./config.js"
@@ -52,7 +53,7 @@ app.listen(config.port, () =>
 )
 
 function logger(req, res, next) {
-  const url = req.headers["x-original-url"] || req.originalUrl
+  const url = getOriginalUrl(req) || req.originalUrl
   const ip = req.headers["x-real-ip"] || req.ip
 
   const startTime = performance.now()

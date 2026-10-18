@@ -12,6 +12,16 @@ It can be used for protecting web sites with NGINX subrequest authentication.
 - Default rate limit of 15 `/login` requests every 15 minutes.
 - Defaults to setting cookie for topdomain, can be overridden with AUTH_COOKIE_OVERRIDES env variable.
 
+`/auth` also supports Traefik forward authentication. It reconstructs the
+requested URL from `X-Forwarded-Proto`, `X-Forwarded-Host` and `X-Forwarded-Uri`,
+preserving path escaping and query parameters for resource permission checks.
+When forwarded URI is present, this triple takes precedence over
+`X-Original-URL`; incomplete or invalid metadata is denied. The ingress proxy
+must overwrite these headers so clients cannot choose the authorization URL.
+Legacy NGINX `X-Original-URL` requests remain supported.
+
+Run the regression tests with `node --test test/*.test.mjs`.
+
 ## Example NGINX conf
 
 For an example NGINX conf, see [example.conf](https://github.com/andygock/auth-server?tab=readme-ov-file#example-nginx-conf).

@@ -1,16 +1,16 @@
 import { refresh } from "../cookie.js"
 import { sign } from "../jwt.js"
 import { get as getUser } from "../db/user.js"
+import { getOriginalUrl } from "../original-url.js"
 
-// endpoint called by NGINX sub request
+// Endpoint called by the ingress controller's authentication subrequest.
 // expect JWT in cookie 'authToken'
 export const get = async (req, res, next) => {
   // parameters from original client request
   // these could be used for validating request
-  const url = req.headers["x-original-url"]
-  const ip = req.headers["x-real-ip"]
+  const url = getOriginalUrl(req)
 
-  if (!req.userId) {
+  if (!req.userId || !url) {
     // not authenticated
     return res.sendStatus(401)
   }
